@@ -26,8 +26,18 @@ type ArduinoData struct {
 	IsManualHandling bool
 	ReleList []Rele
 }
-func (c *Arduino) Connect() {
-	connection, err := serial.Open("/dev/cu.usbmodem1421", &serial.Mode{})
+
+func (c *Arduino) PortList() (portList []string) {
+	portList, err  := serial.GetPortsList()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return
+}
+
+func (c *Arduino) Connect(port string) {
+	connection, err := serial.Open(port, &serial.Mode{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,8 +62,8 @@ func (c *Arduino) WriteData(data string) {
 }
 func (c *Arduino) ReadData(shouldReturn bool) string {
 	var okStage bool = false
+	reader := bufio.NewReader(c.port)
 	for {
-		reader := bufio.NewReader(c.port)
 		reply, err := reader.ReadBytes('\n')
 		if err != nil {
 			panic(err)
@@ -134,4 +144,18 @@ func (c *Arduino) GetData() (resData ArduinoData) {
 	fmt.Println(resData)
 
 	return
+}
+func (c *Arduino) SetManual(state bool) error {
+	stateBit := 0
+	if state {
+		stateBit = 1
+	}
+	fmt.Println(fmt.Sprintf("set_manual;%d\n",stateBit ))
+	c.WriteData(fmt.Sprintf("set_manual;%d\n",stateBit ))
+	stringData := c.ReadData(true)
+	fmt.Println(stringData)
+	//if stringData != "OK" {
+	//	return errors.New(stringData)
+	//}
+	return nil
 }
