@@ -1,0 +1,10 @@
+{
+  "builtInLibrariesFolders": "",
+  "customBuildProperties": "",
+  "fqbn": "arduino:avr:uno",
+  "hardwareFolders": "/Applications/Arduino.app/Contents/Java/hardware",
+  "otherLibrariesFolders": "/Applications/Arduino.app/Contents/Java/libraries,/Users/dmakarenko/Documents/Arduino/libraries",
+  "runtime.ide.version": "10600",
+  "sketchLocation": "/Users/dmakarenko/Work/Go/src/hydroponics/arduino/hydroponics.cpp",
+  "toolsFolders": "./hardware/tools/avr,./tools-builder"
+}

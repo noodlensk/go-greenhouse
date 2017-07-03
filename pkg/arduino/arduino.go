@@ -61,7 +61,6 @@ func (c *Arduino) WriteData(data string) {
 	fmt.Printf("Sent %v bytes\n", n)
 }
 func (c *Arduino) ReadData(shouldReturn bool) string {
-	var okStage bool = false
 	reader := bufio.NewReader(c.port)
 	for {
 		reply, err := reader.ReadBytes('\n')
@@ -69,14 +68,10 @@ func (c *Arduino) ReadData(shouldReturn bool) string {
 			panic(err)
 		}
 		cleanReply :=  strings.TrimSpace(string(reply))
-		if okStage && len(cleanReply) > 0 {
-			return  cleanReply
-		}
-		if cleanReply == "OK" {
-			okStage = true
-			if !shouldReturn {
-				return cleanReply
-			}
+		parsedReply := strings.Split(cleanReply,";")
+		fmt.Printf("REPLY: %s\n", cleanReply)
+		if parsedReply[0] == "OK" {
+			return strings.Join(append(parsedReply[:0], parsedReply[1:]...), ";")
 		}
 	}
 }
@@ -90,8 +85,6 @@ func (c *Arduino) GetData() (resData ArduinoData) {
 		panic(err)
 	}
 	resData.DateTime = time.Unix(i, 0)
-	fmt.Println(parsedStringData[0])
-	fmt.Println(i)
 	temp , err := strconv.ParseFloat(parsedStringData[1], 64)
 	if err != nil {
 		panic(err)
@@ -152,6 +145,20 @@ func (c *Arduino) SetManual(state bool) error {
 	}
 	fmt.Println(fmt.Sprintf("set_manual;%d\n",stateBit ))
 	c.WriteData(fmt.Sprintf("set_manual;%d\n",stateBit ))
+	stringData := c.ReadData(true)
+	fmt.Println(stringData)
+	//if stringData != "OK" {
+	//	return errors.New(stringData)
+	//}
+	return nil
+}
+func (c *Arduino) Switch(switchId string, state bool) error {
+	stateBit := 0
+	if state {
+		stateBit = 1
+	}
+	fmt.Println(fmt.Sprintf(fmt.Sprintf("switch;%s,%d\n",switchId, stateBit )))
+	c.WriteData(fmt.Sprintf("switch;%s;%d\n",switchId, stateBit ))
 	stringData := c.ReadData(true)
 	fmt.Println(stringData)
 	//if stringData != "OK" {

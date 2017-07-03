@@ -14,11 +14,10 @@ var ArduinoData arduino.ArduinoData
 func main() {
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
-	router.Static("/bower_components", "./bower_components")
-	router.StaticFS("/more_static", http.Dir("my_file_system"))
-	router.StaticFile("/favicon.ico", "./resources/favicon.ico")
-	router.LoadHTMLGlob("templates/*")
+	router.Static("/bower_components", "./assets/bower_components")
+	router.LoadHTMLGlob("./assets/templates/*")
 	router.GET("/", func(c *gin.Context) {
+		ArduinoData = ArduinoBoard.GetData()
 		fmt.Println(ArduinoData)
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"title": "Hydroponics",
@@ -26,13 +25,20 @@ func main() {
 			"isManualHandling": ArduinoData.IsManualHandling,
 			"releFirstIsOn": ArduinoData.ReleList[0].IsOn,
 			"releSecondIsOn": ArduinoData.ReleList[1].IsOn,
+			"currentTime": ArduinoData.DateTime.Format("2006-01-02 15:04:05"),
+			"temperature": ArduinoData.Temperature,
+			"humidity": ArduinoData.Humidity,
 		})
 	})
 	router.POST("/switch", func(c *gin.Context) {
 		switchId, _ := c.GetPostForm("switchId")
-		state, _ := c.GetPostForm("state")
-		log.Printf("SwitchId: %s, state: %s", switchId, state)
-		fmt.Println(ArduinoBoard.GetData())
+		stateString, _ := c.GetPostForm("state")
+		state := false
+		if stateString == "true" {
+			state = true
+		}
+		log.Printf("SwitchId: %s, state: %t", switchId, state)
+		fmt.Println(ArduinoBoard.Switch(switchId, state))
 		c.JSON(200, gin.H{
 			"message": "ok",
 		})

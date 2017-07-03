@@ -10,10 +10,10 @@
     <title>Hydroponic</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="/bower_components/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/bower_components/assets/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet">
-    <script src="/bower_components/assets/jquery/jquery.min.js"></script>
-    <script src="/bower_components/assets/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
+    <link href="/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet">
+    <script src="/bower_components/jquery/jquery.min.js"></script>
+    <script src="/bower_components/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
 </head>
 
 <body>
@@ -21,8 +21,14 @@
 <!-- Begin page content -->
 <div class="container">
     <div class="mt-1">
-        <h1>Hydroponic</h1>
+        <h1>Hydroponic <span class="label label-default">{{ .currentTime }}</span></h1>
     </div>
+    <dl class="dl-horizontal">
+      <dt>Temperature</dt>
+      <dd>{{ .temperature }}°</dd>
+      <dt>Humidity</dt>
+      <dd>{{ .humidity }}%</dd>
+    </dl>
     <p class="center">
         <div class="col-sm-2 col-lg-2">
             <h4 class="h4">Manual handling</h4>
@@ -31,6 +37,7 @@
         {{ range .releList }}
         <div class="col-sm-2 col-lg-2">
             <h4 class="h4">{{ .Name }}</h4>
+            <div class="alert alert-info" role="alert">{{ .HourStart }}:00 - {{ .HourEnd }}:00</div>
             <input type="checkbox" class="rele bootstrap-switch" {{ if .IsOn }} checked=true {{ end }} {{ if not $.isManualHandling }} disabled=true {{ end }} name="{{ .Name }}" >
         </div>
         {{ end }}
@@ -47,7 +54,8 @@
             switchId:  $(this).attr('name'),
             state: state
         }, function( data ) {
-            console.log(data)
+            console.log(data);
+            location.reload();
         });
     });
     $("input.manualHandling").on('switchChange.bootstrapSwitch', function(event, state) {
@@ -58,7 +66,8 @@
             $.post( "/setManual", {
                 state: state
             }, function( data ) {
-                console.log(data)
+                console.log(data);
+                location.reload();
             });
         });
 </script>
