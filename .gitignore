@@ -16,3 +16,5 @@
 .glide/
 vendor/
 hydroponics_pi
+hydroponics
+.idea

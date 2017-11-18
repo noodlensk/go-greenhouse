@@ -2,3 +2,5 @@ package: hydroponics
 import:
 - package: go.bug.st/serial.v1
 - package: gopkg.in/gin-gonic/gin.v1
+- package: github.com/pkg/errors
+  version: ^0.8.0
