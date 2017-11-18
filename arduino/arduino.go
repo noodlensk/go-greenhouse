@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	sEncode "github.com/noodlensk/hydroponics/encode/serial"
+	sEncode "github.com/noodlensk/go-greenhouse/encode/serial"
 	"github.com/pkg/errors"
 	"go.bug.st/serial.v1"
 )

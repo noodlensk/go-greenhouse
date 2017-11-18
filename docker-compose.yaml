@@ -1,10 +1,10 @@
 version: "2"
 services:
-  hydroponics:
-    image: noodlensk/hydroponics:latest
+  go-greenhouse:
+    image: noodlensk/go-greenhouse:latest
     ports:
       - "8080:8080"
     devices:
       - "/dev/ttyACM0:/dev/ttyACM0"
     environment:
-      HYDROPONICS_PORT: "/dev/ttyACM0"
+      GO-GREENHOUSE_PORT: "/dev/ttyACM0"

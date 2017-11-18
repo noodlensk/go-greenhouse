@@ -19,7 +19,7 @@ func main() {
 		ArduinoData = ArduinoBoard.GetData()
 		fmt.Println(ArduinoData)
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"title":            "Hydroponics",
+			"title":            "Greenhouse",
 			"releList":         ArduinoData.ReleList,
 			"isManualHandling": ArduinoData.IsManualHandling,
 			"releFirstIsOn":    ArduinoData.ReleList[0].IsOn,
@@ -68,6 +68,6 @@ func main() {
 func init() {
 	portList := ArduinoBoard.PortList()
 	fmt.Printf("Avaible ports: %s\n", strings.Join(portList, ","))
-	ArduinoBoard.Connect(os.Getenv("HYDROPONICS_PORT"))
+	ArduinoBoard.Connect(os.Getenv("GO-GREENHOUSE_PORT"))
 	ArduinoData = ArduinoBoard.GetData()
 }
