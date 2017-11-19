@@ -18,35 +18,39 @@ import (
 )
 
 // used for unmarshal data
-var delemiters = []rune{
+var delimiters = []rune{
 	';',
 	'#',
+	'!',
+	'*',
 }
 
 // Unmarshal parses the Serial-encoded data and stores the result in the value pointed to by v.
-func Unmarshal(data []byte, v interface{}, delimiter rune) error {
+func Unmarshal(data []byte, v interface{}) error {
 	rv := reflect.ValueOf(v)
-	mmarshal(rv, string(data), delimiter)
-
-	return nil
+	if rv.Kind() == reflect.Ptr {
+		rv = rv.Elem()
+	}
+	return unmarshal(rv, string(data), 0)
 }
-func mmarshal(rv reflect.Value, data string, delimiter rune) error {
-	parsed := strings.Split(string(data), string(delimiter))
-	log.Println(rv.Elem().Kind())
+
+func unmarshal(rv reflect.Value, data string, level int) error {
+	parsed := strings.Split(string(data), string(delimiters[level]))
 	switch rv.Kind() {
 	case reflect.Struct:
-		if rv.Elem().NumField() != len(parsed) {
-			return errors.Errorf("failed to parse: fields num mismatch: %d != %d", rv.Elem().NumField(), len(parsed))
+		if rv.NumField() != len(parsed) {
+			return errors.Errorf("failed to parse: fields num mismatch: %d != %d", rv.NumField(), len(parsed))
 		}
-		for i := 0; i < rv.Elem().NumField(); i++ {
-			rf := rv.Elem().Field(i)
+		for i := 0; i < rv.NumField(); i++ {
+			rf := rv.Field(i)
 			if rf.IsValid() {
 				// A Value can be changed only if it is
 				// addressable and was not obtained by
 				// the use of unexported struct fields.
 				if rf.CanSet() {
 					if rf.Kind() == reflect.Slice {
-						mmarshal(rf, parsed[i], '#')
+						log.Println("found slice")
+						unmarshal(rf, parsed[i], level-1)
 					} else {
 						setVal(&rf, parsed[i], rf.Kind())
 					}
@@ -55,12 +59,9 @@ func mmarshal(rv reflect.Value, data string, delimiter rune) error {
 		}
 	case reflect.Slice:
 		for i := range parsed {
-			item := reflect.New(rv.Elem().Type().Elem())
-			mmarshal(item, parsed[i], '#')
-			log.Printf("f %+v\n", rv)
-			log.Printf("s %+v\n", rv)
-			log.Printf("d %+v\n", item)
-			reflect.Append(rv, item)
+			item := reflect.New(rv.Type().Elem())
+			unmarshal(item.Elem(), parsed[i], level-1)
+			rv.Set(reflect.Append(rv, item.Elem()))
 		}
 	}
 	return nil
